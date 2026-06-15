@@ -18,6 +18,10 @@ const DOT_RADIUS = 6;
 const DOT_OFFSET_X = 52;
 const FONT_SIZE = 40;
 const FONT = `${FONT_SIZE}px Geist, "Helvetica Neue", system-ui, sans-serif`;
+const KNOB_SYMBOL_VIEWBOX = 268;
+const KNOB_SYMBOL_PATH = new Path2D(
+  'M142.081 0.000118934C150.666 0.000183094 157.409 7.35129 156.671 15.9046L153.704 50.2668C152.474 64.5139 170.298 71.8968 179.503 60.9529L201.709 34.5505C207.235 27.9803 217.201 27.551 223.272 33.6217L234.525 44.8748C240.595 50.9454 240.166 60.912 233.596 66.4379L207.078 88.7405C196.134 97.945 203.517 115.769 217.764 114.539L252.096 111.575C260.649 110.837 268 117.581 268 126.166L268 142.08C268 150.665 260.649 157.409 252.095 156.67L217.733 153.704C203.486 152.474 196.103 170.297 207.047 179.502L233.449 201.708C240.02 207.234 240.449 217.201 234.378 223.272L223.126 234.524C217.055 240.595 207.088 240.165 201.562 233.595L179.533 207.403C170.328 196.459 152.505 203.842 153.735 218.089L156.671 252.096C157.409 260.649 150.665 268 142.08 268H126.166C117.581 268 110.837 260.649 111.575 252.096L114.537 217.794C115.767 203.547 97.9428 196.164 88.7384 207.108L66.5833 233.45C61.0574 240.02 51.0907 240.45 45.0201 234.379L33.7671 223.126C27.6965 217.055 28.1259 207.089 34.6961 201.563L60.9228 179.504C71.8666 170.3 64.4837 152.476 50.2367 153.706L15.9044 156.67C7.35111 157.409 0 150.665 0 142.08V126.165C0 117.58 7.35108 110.837 15.9044 111.575L50.2062 114.536C64.4532 115.766 71.836 97.9424 60.8921 88.7379L34.5503 66.5828C27.98 61.0569 27.5506 51.0903 33.6212 45.0197L44.8743 33.7667C50.9449 27.6961 60.9115 28.1255 66.4374 34.6957L88.7693 61.2478C97.9738 72.1917 115.797 64.809 114.568 50.5619L111.576 15.9043C110.837 7.35101 117.581 -6.41602e-05 126.166 4.18228e-10L142.081 0.000118934Z',
+);
 
 // Left-hand hardware: a huge raised plate whose rim the text rides along, a
 // ring of per-row tick dots just inside the rim, and a black knob with a
@@ -220,41 +224,23 @@ function paintKnob(
   ctx.lineWidth = KNOB_RADIUS * 0.05;
   ctx.lineCap = 'round';
   ctx.beginPath();
-  for (let i = 0; i < 3; i += 1) {
-    const a = -Math.PI / 2 + (i / 3) * Math.PI * 2;
-    ctx.moveTo(Math.cos(a) * KNOB_RADIUS * 0.82, Math.sin(a) * KNOB_RADIUS * 0.82);
-    ctx.lineTo(Math.cos(a) * KNOB_RADIUS * 0.92, Math.sin(a) * KNOB_RADIUS * 0.92);
+  const dashAngles = [-Math.PI / 2, Math.PI / 4, (3 * Math.PI) / 4];
+  for (const a of dashAngles) {
+    ctx.moveTo(Math.cos(a) * KNOB_RADIUS * 0.86, Math.sin(a) * KNOB_RADIUS * 0.86);
+    ctx.lineTo(Math.cos(a) * KNOB_RADIUS * 0.965, Math.sin(a) * KNOB_RADIUS * 0.965);
   }
   ctx.stroke();
 
-  // Solid tri-blade needle: one compact shape with three rounded tips and
-  // deeply concave sides. The round-joined stroke is what rounds the tips and
-  // softens the waists.
-  const tipRadius = KNOB_RADIUS * 0.32;
-  const waistRadius = tipRadius * 0.3;
-  ctx.beginPath();
-  for (let i = 0; i < 3; i += 1) {
-    const a = -Math.PI / 2 + (i / 3) * Math.PI * 2;
-    const next = -Math.PI / 2 + ((i + 1) / 3) * Math.PI * 2;
-    const mid = (a + next) / 2;
-    const x = Math.cos(a) * tipRadius;
-    const y = Math.sin(a) * tipRadius;
-    if (i === 0) {
-      ctx.moveTo(x, y);
-    }
-    ctx.quadraticCurveTo(
-      Math.cos(mid) * waistRadius,
-      Math.sin(mid) * waistRadius,
-      Math.cos(next) * tipRadius,
-      Math.sin(next) * tipRadius,
-    );
-  }
-  ctx.closePath();
+  // Center icon: use the supplied multi-point white symbol instead of the
+  // previous rounded triangle.
+  const symbolSize = KNOB_RADIUS * 1.42;
+  const symbolScale = symbolSize / KNOB_SYMBOL_VIEWBOX;
+  ctx.save();
+  ctx.translate(-(KNOB_SYMBOL_VIEWBOX * symbolScale) / 2, -(KNOB_SYMBOL_VIEWBOX * symbolScale) / 2);
+  ctx.scale(symbolScale, symbolScale);
   ctx.fillStyle = '#f5f6f8';
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = KNOB_RADIUS * 0.1;
-  ctx.fill();
-  ctx.stroke();
+  ctx.fill(KNOB_SYMBOL_PATH);
+  ctx.restore();
 
   ctx.restore();
 }
