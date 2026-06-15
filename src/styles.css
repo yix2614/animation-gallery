@@ -21,6 +21,98 @@ body {
   touch-action: manipulation;
 }
 
+/* Replace the system cursor with the custom ring on fine-pointer devices. */
+@media (pointer: fine) {
+  .stage {
+    cursor: none;
+  }
+
+  .copyright {
+    cursor: none;
+  }
+}
+
+/* Round custom cursor that trails the pointer. */
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 40;
+  mix-blend-mode: difference;
+  transition:
+    width 0.18s ease,
+    height 0.18s ease,
+    opacity 0.2s ease,
+    background 0.18s ease;
+}
+
+.cursor-ring::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translate(-50%, -50%);
+}
+
+.cursor-ring--press {
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+@media (pointer: coarse) {
+  .cursor-ring {
+    display: none;
+  }
+}
+
+/* Click hint pinned to the bottom-right corner. */
+.click-hint {
+  position: fixed;
+  right: 22px;
+  bottom: 18px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 13px/1 Inter, "Helvetica Neue", system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  color: #808a99;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  user-select: none;
+}
+
+.click-hint__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff7a1a;
+  animation: click-hint-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes click-hint-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.6);
+  }
+}
+
 .copyright {
   position: fixed;
   left: 20px;

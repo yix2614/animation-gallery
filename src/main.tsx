@@ -257,6 +257,42 @@ function paintKnob(
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cursorRef = useRef<HTMLDivElement>(null);
+
+  // Custom round cursor that follows the pointer and pulses on press.
+  useEffect(() => {
+    const ring = cursorRef.current;
+    if (!ring) {
+      return;
+    }
+    const fine = window.matchMedia('(pointer: fine)').matches;
+    if (!fine) {
+      // Touch devices have no hover cursor; leave the ring hidden.
+      return;
+    }
+
+    const move = (event: PointerEvent) => {
+      ring.style.transform = `translate(${event.clientX}px, ${event.clientY}px) translate(-50%, -50%)`;
+      ring.style.opacity = '1';
+    };
+    const leave = () => {
+      ring.style.opacity = '0';
+    };
+    const press = () => ring.classList.add('cursor-ring--press');
+    const release = () => ring.classList.remove('cursor-ring--press');
+
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerdown', press);
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointerout', leave);
+
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerdown', press);
+      window.removeEventListener('pointerup', release);
+      window.removeEventListener('pointerout', leave);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -564,6 +600,11 @@ function App() {
         className="stage"
         aria-label="Scroll to pick a tile transition, click to toggle dark and light mode"
       />
+      <div ref={cursorRef} className="cursor-ring" aria-hidden="true" />
+      <div className="click-hint" aria-hidden="true">
+        <span className="click-hint__dot" />
+        Click to play transition
+      </div>
       <a
         className="copyright"
         href="https://x.com/yixiang6688"
