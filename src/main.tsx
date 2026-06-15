@@ -1,7 +1,7 @@
 import { StrictMode, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { TRANSITIONS } from './transitions';
-import { clamp, smoothstep } from './transitions/types';
+import { clamp, easeInOutCubic, smoothstep } from './transitions/types';
 import type { Cell, TileTransition, TransitionEnv } from './transitions';
 import './styles.css';
 
@@ -37,10 +37,14 @@ const ROWS: Row[] = [
 ];
 const MAX_SCROLL = Math.max(ROWS.length - 1, 0);
 
-// Start centered on Shockwave Grid instead of the first row, so the default
-// selection sits on the center dot.
+// Shockwave Grid is the resting/default row after the landing sequence.
 const DEFAULT_ROW = clamp(
   ROWS.findIndex((row) => row.label === 'Shockwave Grid'),
+  0,
+  MAX_SCROLL,
+);
+const LANDING_START_ROW = clamp(
+  ROWS.findIndex((row) => row.label === 'Spiral Vortex Pull'),
   0,
   MAX_SCROLL,
 );
@@ -305,10 +309,10 @@ function App() {
     let activeTheme = 0;
     let wave: Wave | null = null;
     let roundedDirty = true;
-    let selectedRow = DEFAULT_ROW;
+    let selectedRow = LANDING_START_ROW;
 
-    let scrollPos = DEFAULT_ROW;
-    let scrollTarget = DEFAULT_ROW;
+    let scrollPos = LANDING_START_ROW;
+    let scrollTarget = LANDING_START_ROW;
     let lastPaintedScroll = Number.NaN;
     let snapTimer = 0;
 
@@ -320,6 +324,17 @@ function App() {
     let dragMoved = 0;
     let dragStart = 0;
     let didPlayLanding = false;
+    // After the landing wave finishes, roll the dial from Spiral to Shockwave.
+    let landingScrollPending = false;
+    // Time-based eased tween for scripted scrolls (e.g. the landing roll).
+    // null means the dial follows the default spring toward scrollTarget.
+    let scrollTween: { from: number; to: number; start: number; duration: number } | null = null;
+
+    const startScrollTween = (to: number, duration: number) => {
+      scrollTween = { from: scrollPos, to: clampScroll(to), start: performance.now(), duration };
+      scrollTarget = clampScroll(to);
+      ensureLoop();
+    };
 
     const clampScroll = (value: number) => clamp(value, 0, MAX_SCROLL);
 
@@ -444,15 +459,34 @@ function App() {
       let animating = false;
 
       scrollTarget = clampScroll(scrollTarget);
-      const remaining = scrollTarget - scrollPos;
-      if (Math.abs(remaining) > 0.01) {
-        scrollPos += remaining * 0.16;
-        scrollPos = clampScroll(scrollPos);
-        animating = true;
+      if (scrollTween) {
+        // Scripted eased scroll: interpolate with an ease-in-out curve over a
+        // fixed duration for a smooth, non-springy motion.
+        const elapsed = now - scrollTween.start;
+        const p = clamp(elapsed / scrollTween.duration, 0, 1);
+        scrollPos = clampScroll(
+          scrollTween.from + (scrollTween.to - scrollTween.from) * easeInOutCubic(p),
+        );
+        if (p >= 1) {
+          scrollPos = scrollTween.to;
+          scrollTween = null;
+          if (Number.isInteger(scrollTarget)) {
+            handleSelectionSettled();
+          }
+        } else {
+          animating = true;
+        }
       } else {
-        scrollPos = scrollTarget;
-        if (Number.isInteger(scrollTarget)) {
-          handleSelectionSettled();
+        const remaining = scrollTarget - scrollPos;
+        if (Math.abs(remaining) > 0.01) {
+          scrollPos += remaining * 0.16;
+          scrollPos = clampScroll(scrollPos);
+          animating = true;
+        } else {
+          scrollPos = scrollTarget;
+          if (Number.isInteger(scrollTarget)) {
+            handleSelectionSettled();
+          }
         }
       }
 
@@ -464,6 +498,13 @@ function App() {
         if (drawWave(now)) {
           wave = null;
           blit();
+          // Fallback: if the landing roll hasn't been kicked off by its timer
+          // yet, start it now that the sweep is done.
+          if (landingScrollPending) {
+            landingScrollPending = false;
+            startScrollTween(DEFAULT_ROW, 900);
+            animating = true;
+          }
         } else {
           animating = true;
         }
@@ -553,6 +594,16 @@ function App() {
           gridWidth / 2,
           gridHeight / 2,
         );
+        landingScrollPending = true;
+        // Start the eased roll to Shockwave slightly before the landing wave
+        // finishes, so the rotation overlaps the tail of the sweep instead of
+        // waiting for it to fully complete.
+        window.setTimeout(() => {
+          if (landingScrollPending) {
+            landingScrollPending = false;
+            startScrollTween(DEFAULT_ROW, 900);
+          }
+        }, 220);
         return;
       }
       blit();
@@ -560,6 +611,9 @@ function App() {
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
+      // User input takes over from any scripted landing roll.
+      scrollTween = null;
+      landingScrollPending = false;
       scrollTarget = clampScroll(scrollTarget + event.deltaY / ITEM_SPACING);
       scheduleSnap();
       ensureLoop();
@@ -587,6 +641,9 @@ function App() {
       dragMoved += Math.abs(deltaY);
 
       if (dragMoved > 4) {
+        // User drag takes over from any scripted landing roll.
+        scrollTween = null;
+        landingScrollPending = false;
         scrollTarget = clampScroll(scrollTarget - deltaY / ITEM_SPACING);
         ensureLoop();
       }
