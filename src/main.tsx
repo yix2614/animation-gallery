@@ -40,13 +40,17 @@ const DEFAULT_ROW = clamp(
   0,
   MAX_SCROLL,
 );
+const LANDING_TRANSITION =
+  TRANSITIONS.find((transition) => transition.name === 'Slatted Screen Sweep') ?? TRANSITIONS[0];
 
 type Wave = {
   x: number;
   y: number;
   start: number;
-  fromTheme: number;
-  toTheme: number;
+  fromCanvas: HTMLCanvasElement;
+  toCanvas: HTMLCanvasElement;
+  roundedFromCanvas: HTMLCanvasElement;
+  roundedToCanvas: HTMLCanvasElement;
   transition: TileTransition;
   firstFrame: boolean;
 };
@@ -298,6 +302,7 @@ function App() {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
     const themeCanvases = [document.createElement('canvas'), document.createElement('canvas')];
+    const landingCanvas = document.createElement('canvas');
     // Same surfaces with transparent rounded tile corners, so animating tiles
     // get round corners from a plain drawImage instead of per-tile clipping.
     const roundedCanvases = [document.createElement('canvas'), document.createElement('canvas')];
@@ -328,6 +333,7 @@ function App() {
     let dragLastY = 0;
     let dragMoved = 0;
     let dragStart = 0;
+    let didPlayLanding = false;
 
     const clampScroll = (value: number) => clamp(value, 0, MAX_SCROLL);
 
@@ -362,6 +368,30 @@ function App() {
       ctx.drawImage(source, 0, 0, source.width, source.height, 0, 0, gridWidth, gridHeight);
     };
 
+    const triggerWave = (
+      fromCanvas: HTMLCanvasElement,
+      toCanvas: HTMLCanvasElement,
+      roundedFromCanvas: HTMLCanvasElement,
+      roundedToCanvas: HTMLCanvasElement,
+      transition: TileTransition,
+      x: number,
+      y: number,
+    ) => {
+      doneScratch.fill(0);
+      wave = {
+        x: clamp(x, 0, gridWidth),
+        y: clamp(y, 0, gridHeight),
+        start: performance.now(),
+        fromCanvas,
+        toCanvas,
+        roundedFromCanvas,
+        roundedToCanvas,
+        transition,
+        firstFrame: true,
+      };
+      ensureLoop();
+    };
+
     const drawWave = (now: number) => {
       if (!wave) {
         return true;
@@ -372,10 +402,10 @@ function App() {
 
       const env: TransitionEnv = {
         ctx,
-        from: themeCanvases[wave.fromTheme],
-        to: themeCanvases[wave.toTheme],
-        roundedFrom: roundedCanvases[wave.fromTheme],
-        roundedTo: roundedCanvases[wave.toTheme],
+        from: wave.fromCanvas,
+        to: wave.toCanvas,
+        roundedFrom: wave.roundedFromCanvas,
+        roundedTo: wave.roundedToCanvas,
         cells,
         cellSize: CELL_SIZE,
         dpr,
@@ -403,19 +433,16 @@ function App() {
 
       const bounds = canvas.getBoundingClientRect();
       const nextTheme = activeTheme === 0 ? 1 : 0;
-
-      doneScratch.fill(0);
-      wave = {
-        x: clamp(clientX - bounds.left, 0, gridWidth),
-        y: clamp(clientY - bounds.top, 0, gridHeight),
-        start: performance.now(),
-        fromTheme: activeTheme,
-        toTheme: nextTheme,
-        transition: TRANSITIONS[transitionIndex],
-        firstFrame: true,
-      };
+      triggerWave(
+        themeCanvases[activeTheme],
+        themeCanvases[nextTheme],
+        roundedCanvases[activeTheme],
+        roundedCanvases[nextTheme],
+        TRANSITIONS[transitionIndex],
+        clientX - bounds.left,
+        clientY - bounds.top,
+      );
       activeTheme = nextTheme;
-      ensureLoop();
     };
 
     // Settling on a row just records the selected row.
@@ -499,7 +526,7 @@ function App() {
 
       const pixelWidth = Math.max(1, Math.round(gridWidth * dpr));
       const pixelHeight = Math.max(1, Math.round(gridHeight * dpr));
-      for (const offscreen of [...themeCanvases, ...roundedCanvases, maskCanvas]) {
+      for (const offscreen of [...themeCanvases, ...roundedCanvases, landingCanvas, maskCanvas]) {
         offscreen.width = pixelWidth;
         offscreen.height = pixelHeight;
       }
@@ -521,8 +548,27 @@ function App() {
       }
       maskCtx.fill();
 
+      const landingCtx = landingCanvas.getContext('2d')!;
+      landingCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      landingCtx.fillStyle = '#000000';
+      landingCtx.fillRect(0, 0, gridWidth, gridHeight);
+
       wave = null;
       paintThemes();
+      if (!didPlayLanding) {
+        didPlayLanding = true;
+        activeTheme = 0;
+        triggerWave(
+          landingCanvas,
+          themeCanvases[activeTheme],
+          landingCanvas,
+          roundedCanvases[activeTheme],
+          LANDING_TRANSITION,
+          gridWidth / 2,
+          gridHeight / 2,
+        );
+        return;
+      }
       blit();
     };
 
