@@ -1,0 +1,40 @@
+:root {
+  background: #0e141d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: block;
+  background: #0e141d;
+  cursor: crosshair;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.copyright {
+  position: fixed;
+  left: 20px;
+  bottom: 16px;
+  z-index: 20;
+  font: 500 13px/1 Inter, "Helvetica Neue", system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  color: #808a99;
+  text-decoration: none;
+  mix-blend-mode: difference;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+
+.copyright:hover {
+  opacity: 1;
+}
