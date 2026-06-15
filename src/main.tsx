@@ -17,7 +17,7 @@ const ACTIVE_INDENT = 92;
 const DOT_RADIUS = 6;
 const DOT_OFFSET_X = 52;
 const FONT_SIZE = 40;
-const FONT = `${FONT_SIZE}px Inter, "Helvetica Neue", system-ui, sans-serif`;
+const FONT = `${FONT_SIZE}px Geist, "Helvetica Neue", system-ui, sans-serif`;
 
 // Left-hand hardware: a huge raised plate whose rim the text rides along, a
 // ring of per-row tick dots just inside the rim, and a black knob with a

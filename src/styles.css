@@ -85,7 +85,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  font: 500 13px/1 Inter, "Helvetica Neue", system-ui, sans-serif;
+  font: 500 13px/1 Geist, "Helvetica Neue", system-ui, sans-serif;
   letter-spacing: 0.02em;
   color: #808a99;
   mix-blend-mode: difference;
@@ -118,7 +118,7 @@ body {
   left: 20px;
   bottom: 16px;
   z-index: 20;
-  font: 500 13px/1 Inter, "Helvetica Neue", system-ui, sans-serif;
+  font: 500 13px/1 Geist, "Helvetica Neue", system-ui, sans-serif;
   letter-spacing: 0.02em;
   color: #808a99;
   text-decoration: none;
