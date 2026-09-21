@@ -1,5 +1,8 @@
-import { StrictMode, useEffect, useRef } from 'react';
+import { StrictMode, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/geist-mono';
+import { TransitionInfoPopover } from './components/TransitionInfoPopover';
 import { TRANSITIONS } from './transitions';
 import { clamp, easeInOutCubic, smoothstep } from './transitions/types';
 import type { Cell, TileTransition, TransitionEnv } from './transitions';
@@ -252,6 +255,7 @@ function paintKnob(
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
+  const [activeEffect, setActiveEffect] = useState<string>(ROWS[DEFAULT_ROW].label);
 
   // Custom round cursor that follows the pointer and pulses on press.
   useEffect(() => {
@@ -307,6 +311,7 @@ function App() {
     let cells: Cell[] = [];
     let doneScratch = new Uint8Array(0);
     let activeTheme = 0;
+    document.documentElement.dataset.theme = 'dark';
     let wave: Wave | null = null;
     let roundedDirty = true;
     let selectedRow = LANDING_START_ROW;
@@ -444,6 +449,7 @@ function App() {
         clientY - bounds.top,
       );
       activeTheme = nextTheme;
+      document.documentElement.dataset.theme = activeTheme === 0 ? 'dark' : 'light';
     };
 
     // Settling on a row just records the selected row.
@@ -453,6 +459,7 @@ function App() {
         return;
       }
       selectedRow = index;
+      setActiveEffect(ROWS[index].label);
     };
 
     const tick = (now: number) => {
@@ -585,6 +592,7 @@ function App() {
       if (!didPlayLanding) {
         didPlayLanding = true;
         activeTheme = 0;
+        document.documentElement.dataset.theme = 'dark';
         triggerWave(
           landingCanvas,
           themeCanvases[activeTheme],
@@ -694,6 +702,7 @@ function App() {
         <span className="click-hint__dot" />
         Click to play transition
       </div>
+      <TransitionInfoPopover effect={activeEffect} />
       <a
         className="copyright"
         href="https://x.com/yixiang6688"
