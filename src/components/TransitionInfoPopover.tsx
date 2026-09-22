@@ -59,27 +59,27 @@ export function TransitionInfoPopover({ effect }: { effect: string }) {
           <X className="install-popover__icon install-popover__icon--close" aria-hidden="true" />
         </button>
 
-        <div className="install-popover__body">
-          <header>
-            <h2 id="install-popover-title">Installation</h2>
-            <p>Install the package with npm, or hand the prepared prompt to your coding agent.</p>
-          </header>
-
-          <div className="install-popover__command">
-            <span aria-hidden="true">$</span>
-            <code>{INSTALL_COMMAND}</code>
-            <CopyButton label="Copy installation command" value={INSTALL_COMMAND} />
-          </div>
-
-          <section className="install-popover__prompt" aria-labelledby="agent-prompt-title">
-            <div className="install-popover__prompt-header">
-              <h3 id="agent-prompt-title">Tell your coding agent</h3>
-              <CopyButton label="Copy coding agent prompt" value={agentPrompt} />
-            </div>
-            <pre>{agentPrompt}</pre>
-          </section>
-        </div>
+        <header className="install-popover__intro">
+          <h2 id="install-popover-title">Installation</h2>
+          <p>Install the package with npm, or hand the prepared prompt to your coding agent.</p>
+        </header>
       </div>
+
+      <div className="install-popover__command">
+        <span aria-hidden="true">$</span>
+        <code>{INSTALL_COMMAND}</code>
+        <CopyButton label="Copy installation command" value={INSTALL_COMMAND} />
+      </div>
+
+      <section className="install-popover__prompt" aria-labelledby="agent-prompt-title">
+        <div className="install-popover__prompt-inner">
+          <div className="install-popover__prompt-header">
+            <h3 id="agent-prompt-title">Tell your coding agent</h3>
+            <CopyButton label="Copy coding agent prompt" value={agentPrompt} />
+          </div>
+          <pre>{agentPrompt}</pre>
+        </div>
+      </section>
     </div>
   );
 }

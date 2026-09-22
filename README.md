@@ -132,6 +132,14 @@ Returns the current pathname (+ search + hash). Updates on navigation and browse
 
 On navigation, a full-screen overlay canvas plays one of the effects as a colored mask (`fromColor` → `toColor`); the new route swaps in underneath once the animation has covered the screen. The overlay is created lazily on the first transition, so an app that never navigates costs nothing. Respects `prefers-reduced-motion`.
 
+## Credits
+
+- Route-transition API design (provider + link interception) is inspired by [glimm](https://glimm.dev). No glimm source code is used here — the transition pipeline is original.
+- The **Electric Arc Surge** effect adapts the ripple distortion technique from [m1ckc3s/ripple](https://github.com/m1ckc3s/ripple) by Mick Cesanek (MIT).
+- Fonts: [Inter](https://github.com/rsms/inter) and [Geist Mono](https://github.com/vercel/geist-font), both under the SIL Open Font License 1.1.
+
+See [THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md) for full dependency and license details.
+
 ## License
 
-MIT
+MIT © 2026 yix2614 — see [LICENSE](./LICENSE).

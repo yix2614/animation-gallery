@@ -3,6 +3,10 @@
   --open-width: min(402px, calc(100vw - 28px));
   --popover-radius: 21px;
   --popover-bg: oklch(0.22 0 0);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
   position: fixed;
   top: 20px;
   right: 20px;
@@ -17,29 +21,25 @@
   position: relative;
   width: var(--closed-size);
   min-height: var(--closed-size);
-  max-height: calc(100vh - 40px);
   overflow: hidden;
-  border-radius: var(--popover-radius);
+  border-radius: 50%;
   color: oklch(0.94 0 0);
   background: var(--popover-bg);
-  box-shadow: none;
-  contain: paint;
+  box-shadow: 0 18px 34px -28px rgb(0 0 0 / 0.72);
   font-family: "Inter Variable", Inter, sans-serif;
   font-synthesis: none;
   transform-origin: top right;
   transition:
-    width 440ms cubic-bezier(0.19, 1, 0.22, 1),
-    grid-template-rows 440ms cubic-bezier(0.19, 1, 0.22, 1),
-    box-shadow 240ms ease;
+    width 560ms cubic-bezier(0.19, 1, 0.22, 1),
+    grid-template-rows 380ms cubic-bezier(0.19, 1, 0.22, 1),
+    border-radius 440ms cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 .install-popover[data-state='open'] .install-popover__panel {
   width: var(--open-width);
+  min-height: 0;
   grid-template-rows: 1fr;
-  border-radius: var(--popover-radius);
-  box-shadow:
-    0 18px 34px -28px rgb(0 0 0 / 0.72),
-    inset 0 1px 0 rgb(255 255 255 / 0.05);
+  border-radius: 14px;
 }
 
 .install-popover__trigger {
@@ -52,18 +52,22 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  color: oklch(0.66 0 0);
+  color: oklch(0.72 0 0);
+  background: var(--popover-bg);
+  box-shadow: 0 18px 34px -28px rgb(0 0 0 / 0.72);
+  cursor: pointer;
+  transition: color 140ms ease, background 200ms ease, box-shadow 200ms ease, transform 140ms ease;
+}
+
+.install-popover[data-state='open'] .install-popover__trigger {
+  color: oklch(0.72 0 0);
   background: transparent;
   box-shadow: none;
-  mix-blend-mode: difference;
-  cursor: pointer;
-  transition: color 140ms ease, background 140ms ease, transform 140ms ease;
 }
 
 .install-popover__trigger:hover,
 .install-popover__trigger:focus-visible {
-  color: oklch(0.84 0 0);
-  background: transparent;
+  color: oklch(0.92 0 0);
 }
 
 .install-popover__trigger:active,
@@ -110,45 +114,27 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   opacity: 0 !important;
 }
 
-.install-popover__body {
-  position: relative;
-  z-index: 1;
-  min-height: 0;
-  overflow: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 20px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(-4px) scale(0.985);
-  transform-origin: top right;
-  transition:
-    opacity 160ms ease,
-    transform 220ms cubic-bezier(0.2, 0.84, 0.18, 1);
-}
-
-.install-popover[data-state='open'] .install-popover__body {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
-  transition-delay: 180ms;
-}
-
-.install-popover__body::-webkit-scrollbar,
 .install-popover__prompt pre::-webkit-scrollbar {
   display: none;
 }
 
-.install-popover__body header h2 {
+.install-popover__intro {
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px 16px;
+}
+
+.install-popover__intro h2 {
   margin: 0;
   color: oklch(0.96 0 0);
   font-size: 15px;
   font-weight: 500;
   line-height: 23px;
   letter-spacing: -0.1px;
+  white-space: nowrap;
 }
 
-.install-popover__body header > p:last-child {
+.install-popover__intro > p:last-child {
   max-width: 360px;
   margin: 8px 0 0;
   color: oklch(0.8 0 0);
@@ -158,22 +144,44 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   text-wrap: pretty;
 }
 
+.install-popover__intro h2,
+.install-popover__intro > p:last-child {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.install-popover[data-state='open'] .install-popover__intro h2,
+.install-popover[data-state='open'] .install-popover__intro > p:last-child {
+  opacity: 1;
+  transition-delay: 240ms;
+}
+
 .install-popover__command {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) 32px;
   align-items: center;
   gap: 10px;
-  min-height: 58px;
-  margin-top: 20px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: rgb(255 255 255 / 0.035);
+  width: var(--open-width);
+  min-height: 0;
+  height: 0;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: var(--popover-bg);
+  box-shadow: 0 18px 34px -28px rgb(0 0 0 / 0.72);
   font-family: "Geist Mono Variable", "Geist Mono", "SF Mono", "Fira Code", Consolas, monospace;
   opacity: 0;
+  overflow: hidden;
   transform: translateY(8px);
   transition:
     opacity 180ms ease,
+    height 360ms cubic-bezier(0.19, 1, 0.22, 1),
+    padding 360ms cubic-bezier(0.19, 1, 0.22, 1),
     transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.install-popover[data-state='open'] .install-popover__command {
+  height: 58px;
+  padding: 8px 12px;
 }
 
 .install-popover__command > span {
@@ -214,16 +222,28 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
 }
 
 .install-popover__prompt {
-  margin-top: 14px;
+  display: grid;
+  grid-template-rows: 0fr;
+  width: var(--open-width);
+  border-radius: 14px;
   overflow: hidden;
-  border-radius: 12px;
-  background: rgb(255 255 255 / 0.03);
+  background: var(--popover-bg);
+  box-shadow: 0 18px 34px -28px rgb(0 0 0 / 0.72);
   font-family: "Inter Variable", Inter, sans-serif;
   opacity: 0;
   transform: translateY(8px);
   transition:
     opacity 180ms ease,
+    grid-template-rows 360ms cubic-bezier(0.19, 1, 0.22, 1),
     transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.install-popover__prompt > * {
+  min-height: 0;
+}
+
+.install-popover__prompt-inner {
+  overflow: hidden;
 }
 
 .install-popover__prompt-header {
@@ -232,7 +252,6 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   justify-content: space-between;
   min-height: 50px;
   padding: 8px 12px;
-  background: rgb(255 255 255 / 0.035);
 }
 
 .install-popover[data-state='open'] .install-popover__command {
@@ -242,6 +261,7 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
 }
 
 .install-popover[data-state='open'] .install-popover__prompt {
+  grid-template-rows: 1fr;
   opacity: 1;
   transform: translateY(0);
   transition-delay: 300ms;
@@ -261,6 +281,7 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   padding: 12px;
   overflow: auto;
   color: oklch(0.78 0 0);
+  background: rgb(0 0 0 / 0.18);
   font-family: "Inter Variable", "Inter", system-ui, sans-serif;
   font-size: 13px;
   font-weight: 400;
@@ -268,30 +289,44 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   white-space: pre-wrap;
 }
 
-[data-theme='light'] .install-popover[data-state='open'] .install-popover__panel {
+[data-theme='light'] .install-popover {
+  --popover-bg: oklch(0.96 0 0);
+}
+
+[data-theme='light'] .install-popover__panel {
   color: oklch(0.2 0 0);
+}
+
+[data-theme='light'] .install-popover[data-state='open'] .install-popover__panel {
   box-shadow: none;
 }
 
-[data-theme='light'] .install-popover {
-  --popover-bg: oklch(0.86 0 0);
+[data-theme='light'] .install-popover__trigger {
+  color: oklch(0.36 0 0);
 }
 
-[data-theme='light'] .install-popover__body header h2 {
+[data-theme='light'] .install-popover__trigger:hover,
+[data-theme='light'] .install-popover__trigger:focus-visible,
+[data-theme='light'] .install-popover[data-state='open'] .install-popover__trigger {
+  color: oklch(0.2 0 0);
+}
+
+[data-theme='light'] .install-popover__trigger:focus-visible,
+[data-theme='light'] .install-popover__copy:focus-visible {
+  outline-color: rgb(0 0 0 / 0.5);
+}
+
+[data-theme='light'] .install-popover__intro h2 {
   color: oklch(0.16 0 0);
 }
 
-[data-theme='light'] .install-popover__body header > p:last-child {
-  color: oklch(0.4 0 0);
+[data-theme='light'] .install-popover__intro > p:last-child {
+  color: oklch(0.42 0 0);
 }
 
 [data-theme='light'] .install-popover__command,
 [data-theme='light'] .install-popover__prompt {
-  background: rgb(255 255 255 / 0.32);
-}
-
-[data-theme='light'] .install-popover__prompt-header {
-  background: rgb(255 255 255 / 0.2);
+  box-shadow: 0 18px 34px -28px rgb(0 0 0 / 0.28);
 }
 
 [data-theme='light'] .install-popover__command > span,
@@ -299,13 +334,19 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   color: oklch(0.46 0 0);
 }
 
+[data-theme='light'] .install-popover__copy:hover {
+  color: oklch(0.16 0 0);
+  background: rgb(0 0 0 / 0.06);
+}
+
 [data-theme='light'] .install-popover__command code,
 [data-theme='light'] .install-popover__prompt h3 {
-  color: oklch(0.24 0 0);
+  color: oklch(0.22 0 0);
 }
 
 [data-theme='light'] .install-popover__prompt pre {
-  color: oklch(0.38 0 0);
+  color: oklch(0.36 0 0);
+  background: rgb(0 0 0 / 0.02);
 }
 
 @media (max-width: 560px) {
@@ -315,8 +356,8 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
     --open-width: calc(100vw - 28px);
   }
 
-  .install-popover__body {
-    padding: 20px;
+  .install-popover__intro {
+    padding: 16px;
   }
 
   .install-popover__command code {
@@ -328,7 +369,7 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   .install-popover__panel,
   .install-popover__trigger,
   .install-popover__icon,
-  .install-popover__body,
+  .install-popover__intro,
   .install-popover__command,
   .install-popover__prompt,
   .install-popover__copy {

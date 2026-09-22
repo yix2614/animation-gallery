@@ -363,6 +363,10 @@ void main() {
 `,
 );
 
+// The ripple distortion technique in this effect is adapted from the
+// "ripple" project by Mick Cesanek (MIT License).
+// Source: https://github.com/m1ckc3s/ripple
+// Copyright (c) 2026 Mick Cesanek. See THIRD-PARTY-NOTICES.md.
 export const voltArc = createWebGLTransition(
   'Electric Arc Surge',
   1100,
