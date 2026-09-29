@@ -1,9 +1,10 @@
-import { Info as InfoIcon } from '@phosphor-icons/react';
+import { GithubLogo, Info as InfoIcon } from '@phosphor-icons/react';
 import { Check, Copy, X } from 'lucide-react';
 import { useState } from 'react';
 import './transition-info-popover.css';
 
 const INSTALL_COMMAND = 'npm install transitery';
+const GITHUB_URL = 'https://github.com/yix2614/animation-gallery';
 
 function buildAgentPrompt(effect: string) {
   return `Add transitery to my React app.
@@ -43,26 +44,39 @@ export function TransitionInfoPopover({ effect }: { effect: string }) {
 
   return (
     <div className="install-popover" data-transition-ui data-state={open ? 'open' : 'closed'}>
-      <div className="install-popover__panel" role="dialog" aria-labelledby="install-popover-title" aria-hidden={!open}>
-        <button
-          className="install-popover__trigger"
-          type="button"
-          aria-expanded={open}
-          aria-label={open ? 'Close installation guide' : 'Open installation guide'}
-          onClick={() => setOpen((current) => !current)}
+      <div className="install-popover__actions">
+        <a
+          className="install-popover__github"
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open GitHub repository"
+          onPointerDown={(event) => event.stopPropagation()}
         >
-          <InfoIcon
-            className="install-popover__icon install-popover__icon--info"
-            aria-hidden="true"
-            weight="fill"
-          />
-          <X className="install-popover__icon install-popover__icon--close" aria-hidden="true" />
-        </button>
+          <GithubLogo aria-hidden="true" size={19} weight="fill" />
+        </a>
 
-        <header className="install-popover__intro">
-          <h2 id="install-popover-title">Installation</h2>
-          <p>Install the package with npm, or hand the prepared prompt to your coding agent.</p>
-        </header>
+        <div className="install-popover__panel" role="dialog" aria-labelledby="install-popover-title" aria-hidden={!open}>
+          <button
+            className="install-popover__trigger"
+            type="button"
+            aria-expanded={open}
+            aria-label={open ? 'Close installation guide' : 'Open installation guide'}
+            onClick={() => setOpen((current) => !current)}
+          >
+            <InfoIcon
+              className="install-popover__icon install-popover__icon--info"
+              aria-hidden="true"
+              weight="fill"
+            />
+            <X className="install-popover__icon install-popover__icon--close" aria-hidden="true" />
+          </button>
+
+          <header className="install-popover__intro">
+            <h2 id="install-popover-title">Installation</h2>
+            <p>Install the package with npm, or hand the prepared prompt to your coding agent.</p>
+          </header>
+        </div>
       </div>
 
       <div className="install-popover__command">

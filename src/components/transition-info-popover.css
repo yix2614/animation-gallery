@@ -15,6 +15,41 @@
   isolation: isolate;
 }
 
+.install-popover__actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.install-popover__github {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--closed-size);
+  height: var(--closed-size);
+  border-radius: 50%;
+  color: oklch(0.72 0 0);
+  background: var(--popover-bg);
+  box-shadow: 0 18px 34px -28px rgb(0 0 0 / 0.72);
+  text-decoration: none;
+  transition: color 140ms ease, transform 140ms ease;
+}
+
+.install-popover__github:hover,
+.install-popover__github:focus-visible {
+  color: oklch(0.92 0 0);
+}
+
+.install-popover__github:active {
+  transform: scale(0.96);
+}
+
+.install-popover__github:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.82);
+  outline-offset: 3px;
+}
+
 .install-popover__panel {
   display: grid;
   grid-template-rows: 0fr;
@@ -76,6 +111,7 @@
 }
 
 .install-popover__trigger:focus-visible,
+.install-popover__github:focus-visible,
 .install-popover__copy:focus-visible {
   outline: 2px solid rgb(255 255 255 / 0.82);
   outline-offset: 3px;
@@ -305,13 +341,21 @@ body:has(.install-popover__trigger:hover) .cursor-ring {
   color: oklch(0.36 0 0);
 }
 
+[data-theme='light'] .install-popover__github {
+  color: oklch(0.36 0 0);
+  box-shadow: 0 18px 34px -28px rgb(0 0 0 / 0.28);
+}
+
 [data-theme='light'] .install-popover__trigger:hover,
 [data-theme='light'] .install-popover__trigger:focus-visible,
-[data-theme='light'] .install-popover[data-state='open'] .install-popover__trigger {
+[data-theme='light'] .install-popover[data-state='open'] .install-popover__trigger,
+[data-theme='light'] .install-popover__github:hover,
+[data-theme='light'] .install-popover__github:focus-visible {
   color: oklch(0.2 0 0);
 }
 
 [data-theme='light'] .install-popover__trigger:focus-visible,
+[data-theme='light'] .install-popover__github:focus-visible,
 [data-theme='light'] .install-popover__copy:focus-visible {
   outline-color: rgb(0 0 0 / 0.5);
 }
